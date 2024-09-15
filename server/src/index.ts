@@ -70,7 +70,7 @@ app.get('/auth', async (req, res) => {
       }
     });
 
-    interface TrackDetails{
+    export interface TrackDetails{
         name: string,
         artists: string[],
         album: string,
@@ -83,12 +83,17 @@ app.post('/get-track-list', async (req,res) => {
   let data = req.body;
   console.log(`In the post body ${JSON.stringify(data)}`)
   sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data); // SDK now authenticated as client-side user
+  await storeTopTracks();
   const tracks = await TopTracks();
-  res.json(tracks);
+  console.log(tracks.songs);
+  res.json(tracks.songs);
 })
-async function TopTracks(){
+
+async function storeTopTracks(){
   const tracks = await sdk.currentUser.topItems("tracks");
-  console.log(tracks);
+  const date = new Date().toISOString().slice(0, 10)
+  const userProfile = await sdk.currentUser.profile();
+  const userId = userProfile.id;
   let trackList = tracks.items.map((track) => ({
     name: track.name, 
     artists: track.artists.map((artist) => artist.name), 
@@ -96,7 +101,29 @@ async function TopTracks(){
     albumImageUrl: track.album.images[0].url
 }));
   console.log(trackList);
-  return trackList;
+  const songs = new Song({time: date,
+                          userId: userId,
+                          songs: trackList,
+  })
+  await songs.save();
+}
+async function TopTracks(){
+
+  const userProfile = await sdk.currentUser.profile();
+  const userId = userProfile.id;
+try {
+  const mostRecentEntry = await Song.findOne({ userId })
+      .sort({ time: -1 }) // Sort by 'time' in descending order (most recent first)
+      .limit(1); // Limit the result to 1 document
+
+  if (mostRecentEntry) {
+      return mostRecentEntry;
+  } else {
+      console.error('No entries found for the user' );
+  }
+} catch (error) {
+  console.error("Error fetching most recent entry:", error);
+};
 } 
 
 const db = mongoose.connect(
