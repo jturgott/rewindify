@@ -23,7 +23,6 @@ const Callback: React.FC = () => {
           console.log('Token response:', data);
 
           // Store the token in local storage (or consider more secure options)
-          localStorage.setItem('spotifyAccessToken', data.access_token); 
 
       } catch (error) {
           console.error('Error fetching token:', error);
