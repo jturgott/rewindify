@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Updated import
+import { useNavigate } from 'react-router-dom';
 
 const Callback: React.FC = () => {
-  const navigate = useNavigate(); // Use useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getToken = async () => {

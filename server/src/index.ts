@@ -3,6 +3,7 @@ import * as mongoose from "mongoose";
 import cors from 'cors';
 import { config } from 'dotenv';
 import Song from "./models/songs";
+import { SpotifyApi } from "@spotify/web-api-ts-sdk";
 
 
 
@@ -13,6 +14,7 @@ const app = express();
 config();
 const REDIRECT_URI = 'http://localhost:5173/callback/';
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+app.use(express.json());
 
 app.use(cors({
     origin: 'http://localhost:5173', // Allow requests from this origin
@@ -49,15 +51,20 @@ app.get('/auth', async (req, res) => {
               redirect_uri: REDIRECT_URI,
             }),
           });
-          console.log("fetch successful")
-
           if (!response.ok) {
             throw new Error('Network response was not ok'); 
           }
 
           const data = await response.json();
-          console.log(response);
-          res.json(data); 
+          console.log(data);
+          fetch('http://localhost:5000/accept-user-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Important: Specify JSON content type
+            },
+            body: JSON.stringify(data), // Send the token in the request body
+        })
+        res.json(data);
 
         } catch (error) {
           console.error('Error fetching token:', error);
@@ -67,6 +74,23 @@ app.get('/auth', async (req, res) => {
       }
     });
 
+    interface TrackDetails{
+        name: string,
+        artists: string[],
+        album: string,
+        image: string,
+    }
+
+let sdk: SpotifyApi;
+
+app.post('/accept-user-token', async(req, res) => {
+    let data = req.body;
+    console.log(`In the post body ${JSON.stringify(data)}`)
+    sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data); // SDK now authenticated as client-side user
+    const tracks = await sdk.currentUser.topItems("tracks");
+    console.log(tracks);
+}); 
+
 const db = mongoose.connect(
     process.env.MONGO_URL!
     ).then(
@@ -75,4 +99,3 @@ const db = mongoose.connect(
         app.listen(PORT);
     }
 )
-
