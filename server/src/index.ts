@@ -17,8 +17,11 @@ app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 app.use(express.json());
 
 app.use(cors({
-    origin: 'http://localhost:5173', // Allow requests from this origin
-    methods: ['GET', 'POST'], // Allow these HTTP methods
+  origin: 'http://localhost:5173', // Allow requests from this origin
+  methods: ['GET', 'POST'],        // Allow these HTTP methods
+  allowedHeaders: ['Content-Type',   
+'Authorization'], // Allow these headers   
+
 }));
 
 app.get('/hello', (req, res) => {
@@ -57,13 +60,6 @@ app.get('/auth', async (req, res) => {
 
           const data = await response.json();
           console.log(data);
-          fetch('http://localhost:5000/accept-user-token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Important: Specify JSON content type
-            },
-            body: JSON.stringify(data), // Send the token in the request body
-        })
         res.json(data);
 
         } catch (error) {
@@ -83,13 +79,25 @@ app.get('/auth', async (req, res) => {
 
 let sdk: SpotifyApi;
 
-app.post('/accept-user-token', async(req, res) => {
-    let data = req.body;
-    console.log(`In the post body ${JSON.stringify(data)}`)
-    sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data); // SDK now authenticated as client-side user
-    const tracks = await sdk.currentUser.topItems("tracks");
-    console.log(tracks);
-}); 
+app.post('/get-track-list', async (req,res) => {
+  let data = req.body;
+  console.log(`In the post body ${JSON.stringify(data)}`)
+  sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data); // SDK now authenticated as client-side user
+  const tracks = await TopTracks();
+  res.json(tracks);
+})
+async function TopTracks(){
+  const tracks = await sdk.currentUser.topItems("tracks");
+  console.log(tracks);
+  let trackList = tracks.items.map((track) => ({
+    name: track.name, 
+    artists: track.artists.map((artist) => artist.name), 
+    albumName: track.album.name,
+    albumImageUrl: track.album.images[0].url
+}));
+  console.log(trackList);
+  return trackList;
+} 
 
 const db = mongoose.connect(
     process.env.MONGO_URL!

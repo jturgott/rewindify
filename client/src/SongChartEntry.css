@@ -1,0 +1,54 @@
+.song-chart-entry {
+  display: flex;
+  align-items: center;
+  padding: 15px; /* Increased padding for larger size */
+  border-bottom: 1px solid #282828;
+  background-color: #121212;
+  color: #ffffff;
+  width: 100%; /* Take up full screen width */
+  box-sizing: border-box; /* Include padding and border in width calculation */
+}
+  
+  .song-chart-entry .rank {
+    width: 30px;
+    text-align: center;
+    margin-right: 20px;
+  }
+  
+  .song-chart-entry .song-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+  }
+  
+  .song-chart-entry .album-art {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    background-color: #1DB954; /* Spotify green placeholder */
+    overflow: hidden; /* Hide any overflow */
+  }
+  
+  .song-chart-entry .album-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Make the image cover the entire div while maintaining aspect ratio */
+  }
+  
+  .song-chart-entry .title {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .song-chart-entry .actions {
+    display: flex;
+    margin-left: 20px;
+  }
+  
+  .song-chart-entry .new-icon {
+    margin-right: 10px;
+  }
+  
+  .song-chart-entry .favorite-icon {
+    color: #1DB954; 
+  }
