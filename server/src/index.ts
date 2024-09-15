@@ -84,14 +84,14 @@ app.post('/get-track-list', async (req,res) => {
   console.log(`In the post body ${JSON.stringify(data)}`)
   sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data); // SDK now authenticated as client-side user
   await storeTopTracks();
-  const tracks = await TopTracks();
-  console.log(tracks.songs);
-  res.json(tracks.songs);
+  const recentTracks = await TopTracks(new Date().toISOString().slice(0, 10));
+  const oldTracks = await TopTracks(new Date().toISOString().slice(0,10));
+  res.json({recentTracks: recentTracks.songs, oldTracks: oldTracks.songs});
 })
 
 async function storeTopTracks(){
   const tracks = await sdk.currentUser.topItems("tracks");
-  const date = new Date().toISOString().slice(0, 10)
+  const date = new Date().toISOString().slice(0, 10);
   const userProfile = await sdk.currentUser.profile();
   const userId = userProfile.id;
   let trackList = tracks.items.map((track) => ({
@@ -107,24 +107,32 @@ async function storeTopTracks(){
   })
   await songs.save();
 }
-async function TopTracks(){
-
+async function TopTracks(beforeDate?: string) {
   const userProfile = await sdk.currentUser.profile();
   const userId = userProfile.id;
-try {
-  const mostRecentEntry = await Song.findOne({ userId })
-      .sort({ time: -1 }) // Sort by 'time' in descending order (most recent first)
-      .limit(1); // Limit the result to 1 document
 
-  if (mostRecentEntry) {
+  try {
+    const query: any = { userId };
+    if (beforeDate) {
+      query.time = { $lte: beforeDate }; // Add date filter if beforeDate is provided
+    }
+
+    const mostRecentEntry = await Song.findOne(query)
+      .sort({ time: -1 })
+      .limit(1);
+
+    if (mostRecentEntry) {
       return mostRecentEntry;
-  } else {
-      console.error('No entries found for the user' );
+    } else {
+      console.error('No entries found for the user before the specified date');
+      // You might want to handle this case differently in your application
+      // (e.g., return an empty list or a specific error response)
+    }
+  } catch (error) {
+    console.error("Error fetching most recent entry:", error);
+    // Handle the error appropriately
   }
-} catch (error) {
-  console.error("Error fetching most recent entry:", error);
-};
-} 
+}
 
 const db = mongoose.connect(
     process.env.MONGO_URL!

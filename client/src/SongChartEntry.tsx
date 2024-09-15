@@ -31,7 +31,11 @@ const SongChartEntry: React.FC<SongChartEntryProps> = ({
         </div>
       </div>
       <div className="actions">
-        {isNew && <span className="new-icon">→</span>}
+              {isNew ? ( 
+            <span className="new-icon">→</span> 
+        ) : ( 
+            <span className="new-icon">●</span> 
+        )} 
         {isFavorite && <span className="favorite-icon">★</span>}
       </div>
       {/* Add more divs for the additional columns as needed */}

@@ -6,6 +6,7 @@ interface TrackDetails {
   artists: string[];
   album: string;
   albumImageUrl: string;
+  isNew: boolean;
 }
 
 const ViewTracks: React.FC = () => {
@@ -30,7 +31,15 @@ const ViewTracks: React.FC = () => {
           throw new Error('Network response was not ok');
         }
         const data = await result.json();
-        setTracks(data);
+        const oldTrackIds = new Set(data.oldTracks.map((track: TrackDetails) => track.name)); // Assuming your TrackDetails has an 'id' field
+
+        // Mark tracks as new if they're in recentTracks but not in oldTracks
+        const markedTracks = data.recentTracks.map((track: TrackDetails) => ({
+          ...track,
+          isNew: !oldTrackIds.has(track.name)
+        }));
+
+        setTracks(markedTracks); 
       } catch (err) {
         setError(err as Error);
       } finally {
@@ -57,7 +66,7 @@ const ViewTracks: React.FC = () => {
           rank={index + 1}
           title={track.name}
           artist={track.artists.join(', ')}
-          isNew={false} 
+          isNew={track.isNew} 
           isFavorite={false} 
           albumArtUrl={track.albumImageUrl}
         />
