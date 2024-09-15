@@ -5,18 +5,18 @@ const Schema = mongoose.Schema;
 // const ObjectId = Schema.ObjectId;
 
 const SongSchema = new Schema({
-    time: String,
-    userId: String,
-    songs: [
-        {
-            name: String,
-            artists: [String], 
-            albumName: String, // Add albumName
-            albumImageUrl: String, // Add albumImageUrl
-        }
-    ],
+  time: String,
+  userId: String,
+  songs: [
+    {
+      name: String,
+      artists: [String],
+      albumName: String, // Add albumName
+      albumImageUrl: String, // Add albumImageUrl
+    },
+  ],
 });
 
-const SongModel = mongoose.model("Song", SongSchema)
+const SongModel = mongoose.model("Song", SongSchema);
 
-export default SongModel
+export default SongModel;

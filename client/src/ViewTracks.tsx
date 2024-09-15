@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import SongChartEntry from './SongChartEntry';
+import React, { useState, useEffect } from "react";
+import SongChartEntry from "./SongChartEntry";
 
 interface TrackDetails {
   rankDifference: number;
@@ -8,7 +8,7 @@ interface TrackDetails {
   album: string;
   albumImageUrl: string;
   isNew: boolean;
-  trend: 'new' | 'up' | 'down' | 'same';
+  trend: "new" | "up" | "down" | "same";
 }
 
 const ViewTracks: React.FC = () => {
@@ -19,41 +19,43 @@ const ViewTracks: React.FC = () => {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        console.log((localStorage.getItem('spotifyAccessToken')))
-        const response = fetch('http://localhost:5000/get-track-list', {
-          method: 'POST',
+        console.log(localStorage.getItem("spotifyAccessToken"));
+        const response = fetch("http://localhost:5000/get-track-list", {
+          method: "POST",
           headers: {
-              'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: localStorage.getItem('spotifyAccessToken'),
-      })
+          body: localStorage.getItem("spotifyAccessToken"),
+        });
 
-      const result = await response;
+        const result = await response;
         if (!result.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         const data = await result.json();
 
         const shuffledOldTracks = data.oldTracks
           .map((value: TrackDetails) => ({ value, sort: Math.random() }))
-          .sort((a: { sort: number; }, b: { sort: number; }) => a.sort - b.sort)
-          .map((element: {value: TrackDetails}) => element.value);
+          .sort((a: { sort: number }, b: { sort: number }) => a.sort - b.sort)
+          .map((element: { value: TrackDetails }) => element.value);
 
         console.log(shuffledOldTracks);
-        const oldTrackMap = new Map(); 
+        const oldTrackMap = new Map();
         shuffledOldTracks.forEach((element: TrackDetails, index: number) => {
           oldTrackMap.set(element.name, index);
         });
 
         console.log(oldTrackMap);
-        const markedTracks = data.recentTracks.map((track: TrackDetails, index: number) => {
-          const oldRank = oldTrackMap.get(track.name);
-          const currentRank = index + 1;
-          const rankDifference = oldRank !== undefined ? oldRank - currentRank : 0;
+        const markedTracks = data.recentTracks.map(
+          (track: TrackDetails, index: number) => {
+            const oldRank = oldTrackMap.get(track.name);
+            const currentRank = index + 1;
+            const rankDifference =
+              oldRank !== undefined ? oldRank - currentRank : 0;
 
-          return { ...track, isNew: oldRank === undefined, rankDifference };
-        });
-
+            return { ...track, isNew: oldRank === undefined, rankDifference };
+          }
+        );
 
         console.log(markedTracks);
         setTracks(markedTracks);
@@ -82,9 +84,9 @@ const ViewTracks: React.FC = () => {
           key={index}
           rank={index + 1}
           title={track.name}
-          artist={track.artists.join(', ')}
+          artist={track.artists.join(", ")}
           isNew={track.isNew}
-          isFavorite={false} 
+          isFavorite={false}
           albumArtUrl={track.albumImageUrl}
           rankDifference={track.rankDifference} // Pass the rankDifference to SongChartEntry
         />
