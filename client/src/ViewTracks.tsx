@@ -15,8 +15,7 @@ interface ViewTracksProps {
   selectedDate: Date | null;
 }
 
-const ViewTracks: React.FC<ViewTracksProps> = ({selectedDate
-}) => {
+const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
   const [tracks, setTracks] = useState<TrackDetails[]>(); // Initialize with initialTracks
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -30,8 +29,10 @@ const ViewTracks: React.FC<ViewTracksProps> = ({selectedDate
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({token: localStorage.getItem("spotifyAccessToken"),
-          date: selectedDate ? selectedDate: new Date()})
+          body: JSON.stringify({
+            token: localStorage.getItem("spotifyAccessToken"),
+            date: selectedDate ? selectedDate : new Date(),
+          }),
         });
 
         const result = await response;
@@ -72,7 +73,7 @@ const ViewTracks: React.FC<ViewTracksProps> = ({selectedDate
       }
     };
 
-      fetchTracks();
+    fetchTracks();
   }, [selectedDate]);
 
   if (isLoading) {

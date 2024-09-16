@@ -14,7 +14,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tracklist { 
+#tracklist {
   width: 50%; /* Occupy half the screen width */
   /* You might also want to add margin or padding for better spacing */
   margin-left: 0; /* Center the tracklist horizontally */

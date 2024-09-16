@@ -81,7 +81,10 @@ let sdk: SpotifyApi;
 app.post("/get-track-list", async (req, res) => {
   let data = req.body;
   console.log(`In the post body ${JSON.stringify(data)}`);
-  sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, JSON.parse(data.token)); // SDK now authenticated as client-side user
+  sdk = SpotifyApi.withAccessToken(
+    process.env.SPOTIFY_CLIENT_ID,
+    JSON.parse(data.token)
+  ); // SDK now authenticated as client-side user
   await storeTopTracks();
   const recentTracks = await TopTracks(new Date().toISOString());
   const oldTracks = await TopTracks(data.date);

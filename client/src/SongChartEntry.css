@@ -61,6 +61,7 @@
 }
 
 /* Style the parent div to use flexbox */
-.view-tracks-container { /* Add this class to the parent div in your JSX */
+.view-tracks-container {
+  /* Add this class to the parent div in your JSX */
   display: flex;
 }
