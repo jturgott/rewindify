@@ -52,3 +52,15 @@
 .song-chart-entry .favorite-icon {
   color: #1db954;
 }
+
+/* ... other styles ... */
+
+#tracklist {
+  width: 50%;
+  margin-left: 0;
+}
+
+/* Style the parent div to use flexbox */
+.view-tracks-container { /* Add this class to the parent div in your JSX */
+  display: flex;
+}

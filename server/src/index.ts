@@ -3,7 +3,7 @@ import * as mongoose from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
 import Song from "./models/songs";
-import { SpotifyApi } from "@spotify/web-api-ts-sdk";
+import { AccessToken, SpotifyApi } from "@spotify/web-api-ts-sdk";
 
 const PORT = 5000;
 const app = express();
@@ -81,16 +81,16 @@ let sdk: SpotifyApi;
 app.post("/get-track-list", async (req, res) => {
   let data = req.body;
   console.log(`In the post body ${JSON.stringify(data)}`);
-  sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data); // SDK now authenticated as client-side user
+  sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, JSON.parse(data.token)); // SDK now authenticated as client-side user
   await storeTopTracks();
-  const recentTracks = await TopTracks(new Date().toISOString().slice(0, 10));
-  const oldTracks = await TopTracks(new Date().toISOString().slice(0, 10));
+  const recentTracks = await TopTracks(new Date().toISOString());
+  const oldTracks = await TopTracks(data.date);
   res.json({ recentTracks: recentTracks.songs, oldTracks: oldTracks.songs });
 });
 
 async function storeTopTracks() {
   const tracks = await sdk.currentUser.topItems("tracks");
-  const date = new Date().toISOString().slice(0, 10);
+  const date = new Date();
   const userProfile = await sdk.currentUser.profile();
   const userId = userProfile.id;
   let trackList = tracks.items.map((track) => ({
@@ -106,6 +106,7 @@ async function storeTopTracks() {
 async function TopTracks(beforeDate?: string) {
   const userProfile = await sdk.currentUser.profile();
   const userId = userProfile.id;
+  console.log("ID" + userId);
 
   try {
     const query: any = { userId };
@@ -129,6 +130,23 @@ async function TopTracks(beforeDate?: string) {
     // Handle the error appropriately
   }
 }
+
+app.post("/dates", async (req, res) => {
+  try {
+    const data: AccessToken = req.body;
+    console.log(`In the post body ${JSON.stringify(data)}`);
+    sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data);
+    const userProfile = await sdk.currentUser.profile();
+    const userId = userProfile.id;
+    // Find all unique dates (as strings) for the given userId
+    const dateStrings = await Song.distinct("time", { userId });
+
+    res.json(dateStrings);
+  } catch (error) {
+    console.error("Error fetching dates:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 const db = mongoose.connect(process.env.MONGO_URL!).then(() => {
   console.log(`listening on port ${PORT}`);

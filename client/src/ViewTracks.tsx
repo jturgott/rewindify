@@ -11,8 +11,13 @@ interface TrackDetails {
   trend: "new" | "up" | "down" | "same";
 }
 
-const ViewTracks: React.FC = () => {
-  const [tracks, setTracks] = useState<TrackDetails[]>([]);
+interface ViewTracksProps {
+  selectedDate: Date | null;
+}
+
+const ViewTracks: React.FC<ViewTracksProps> = ({selectedDate
+}) => {
+  const [tracks, setTracks] = useState<TrackDetails[]>(); // Initialize with initialTracks
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -25,7 +30,8 @@ const ViewTracks: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: localStorage.getItem("spotifyAccessToken"),
+          body: JSON.stringify({token: localStorage.getItem("spotifyAccessToken"),
+          date: selectedDate ? selectedDate: new Date()})
         });
 
         const result = await response;
@@ -66,8 +72,8 @@ const ViewTracks: React.FC = () => {
       }
     };
 
-    fetchTracks();
-  }, []);
+      fetchTracks();
+  }, [selectedDate]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -78,8 +84,8 @@ const ViewTracks: React.FC = () => {
   }
 
   return (
-    <div>
-      {tracks.map((track, index) => (
+    <div id="tracklist">
+      {tracks!.map((track, index) => (
         <SongChartEntry
           key={index}
           rank={index + 1}

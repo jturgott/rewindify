@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 // const ObjectId = Schema.ObjectId;
 
 const SongSchema = new Schema({
-  time: String,
+  time: Date,
   userId: String,
   songs: [
     {
