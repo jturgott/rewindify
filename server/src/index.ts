@@ -1,21 +1,35 @@
+import "./instrument";
 import express from "express";
 import * as mongoose from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
 import Song from "./models/songs";
 import { AccessToken, SpotifyApi } from "@spotify/web-api-ts-sdk";
+import * as Sentry from "@sentry/node";
+
+const { nodeProfilingIntegration } = require("@sentry/profiling-node");
+
+Sentry.init({
+  dsn: "https://b7e8d4ed2036bb24852fd05f30412b34@o4507980203163648.ingest.us.sentry.io/4507980286197760",
+  integrations: [nodeProfilingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+
+  // Set sampling rate for profiling - this is relative to tracesSampleRate
+  profilesSampleRate: 1.0,
+});
 
 const PORT = 5000;
 const app = express();
 
 config();
-const REDIRECT_URI = "http://localhost:5173/callback/";
+const REDIRECT_URI = "http://localhost:3000/callback/";
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow requests from this origin
+    origin: "http://localhost:3000", // Allow requests from this origin
     methods: ["GET", "POST"], // Allow these HTTP methods
     allowedHeaders: ["Content-Type", "Authorization"], // Allow these headers
   })
@@ -114,7 +128,10 @@ async function TopTracks(beforeDate?: string) {
   try {
     const query: any = { userId };
     if (beforeDate) {
-      query.time = { $lte: beforeDate }; // Add date filter if beforeDate is provided
+      const endOfDay = new Date(beforeDate);
+      endOfDay.setHours(23, 59, 59, 999); // Set to the last millisecond of the day
+
+      query.time = { $lte: endOfDay.toISOString() };
     }
 
     const mostRecentEntry = await Song.findOne(query)
@@ -150,6 +167,8 @@ app.post("/dates", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+Sentry.setupExpressErrorHandler(app);
 
 const db = mongoose.connect(process.env.MONGO_URL!).then(() => {
   console.log(`listening on port ${PORT}`);

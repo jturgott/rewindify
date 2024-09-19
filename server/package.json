@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --exec \"ts-node src/index.ts\""
+    "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --exec \"ts-node src/index.ts\"",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org jayden-turgott --project node-express ./out && sentry-cli sourcemaps upload --org jayden-turgott --project node-express ./out"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@sentry/cli": "^2.36.1",
+    "@sentry/node": "^8.30.0",
+    "@sentry/profiling-node": "^8.30.0",
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "@types/react-router-dom": "^5.3.3",
     "cors": "^2.8.5",
