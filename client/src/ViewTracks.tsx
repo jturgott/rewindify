@@ -41,15 +41,11 @@ const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
         }
         const data = await result.json();
 
-        const shuffledOldTracks = data.oldTracks
-          .map((value: TrackDetails) => ({ value, sort: Math.random() }))
-          .sort((a: { sort: number }, b: { sort: number }) => a.sort - b.sort)
-          .map((element: { value: TrackDetails }) => element.value);
+        const oldTracks = data.oldTracks;
 
-        console.log(shuffledOldTracks);
         const oldTrackMap = new Map();
-        shuffledOldTracks.forEach((element: TrackDetails, index: number) => {
-          oldTrackMap.set(element.name, index);
+        oldTracks.forEach((element: TrackDetails, index: number) => {
+          oldTrackMap.set(element.name, index+1);
         });
 
         console.log(oldTrackMap);
