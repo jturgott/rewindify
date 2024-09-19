@@ -1,5 +1,5 @@
 import React from "react";
-import "./SongChartEntry.css"; // Import the CSS file
+import "./SongChartEntry.css";
 
 interface SongChartEntryProps {
   rank: number;
@@ -9,19 +9,17 @@ interface SongChartEntryProps {
   isFavorite: boolean;
   albumArtUrl: string;
   rankDifference: number;
-  // Add other properties as needed
 }
 
+// Component for each element on the tracklist
 const SongChartEntry: React.FC<SongChartEntryProps> = ({
   rank,
   title,
   artist,
   isNew,
-  isFavorite,
   albumArtUrl,
   rankDifference,
 }) => {
-  console.log(albumArtUrl);
   return (
     <div className="song-chart-entry">
       <div className="rank">{rank}</div>
@@ -36,15 +34,17 @@ const SongChartEntry: React.FC<SongChartEntryProps> = ({
         </div>
       </div>
       <div className="actions">
-        {isFavorite && <span className="favorite-icon">★</span>}
-
+        {/*If a track is in the new list but not the old list, there will be a right arrow. 
+        If the track is higher up on the new list, there will be an up arrow. 
+        If the track is further down on the new list, there will be a down arrow. 
+        If the track in the same place in both lists, there will be a circle.*/}
         <span className={`trend ${isNew ? "new" : "same"}`}>
           {isNew && "→"}
           {!isNew && rankDifference != 0 && (
             <>
               {rankDifference > 0 && "▲"}
               {rankDifference < 0 && "▼"}
-              {` (${Math.abs(rankDifference)})`} {}
+              {` (${rankDifference})`} {}
             </>
           )}
           {!isNew && rankDifference === 0 && "●"}

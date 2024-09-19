@@ -8,6 +8,7 @@ import Calendar from "./Calendar.tsx";
 const App: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  // Used to update the date that we're comparing with the current date.
   const handleDateSelected = (date: Date) => {
     setSelectedDate(date);
   };

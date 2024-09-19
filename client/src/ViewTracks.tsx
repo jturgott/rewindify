@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import SongChartEntry from "./SongChartEntry";
 
+// Holds details about tracks from the new tracklist and how they compare to the 
+// older tracklist
 interface TrackDetails {
   rankDifference: number;
   name: string;
@@ -8,7 +10,6 @@ interface TrackDetails {
   album: string;
   albumImageUrl: string;
   isNew: boolean;
-  trend: "new" | "up" | "down" | "same";
 }
 
 interface ViewTracksProps {
@@ -16,14 +17,14 @@ interface ViewTracksProps {
 }
 
 const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
-  const [tracks, setTracks] = useState<TrackDetails[]>(); // Initialize with initialTracks
+  const [tracks, setTracks] = useState<TrackDetails[]>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        console.log(localStorage.getItem("spotifyAccessToken"));
+        //Fetches a list of track details 
         const response = fetch("http://localhost:5000/get-track-list", {
           method: "POST",
           headers: {
@@ -45,7 +46,7 @@ const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
 
         const oldTrackMap = new Map();
         oldTracks.forEach((element: TrackDetails, index: number) => {
-          oldTrackMap.set(element.name, index+1);
+          oldTrackMap.set(element.name, index + 1);
         });
 
         console.log(oldTrackMap);
@@ -91,7 +92,7 @@ const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
           isNew={track.isNew}
           isFavorite={false}
           albumArtUrl={track.albumImageUrl}
-          rankDifference={track.rankDifference} // Pass the rankDifference to SongChartEntry
+          rankDifference={track.rankDifference} 
         />
       ))}
     </div>

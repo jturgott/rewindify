@@ -24,6 +24,8 @@ const app = express();
 
 config();
 const REDIRECT_URI = "http://localhost:3000/callback/";
+let sdk: SpotifyApi;
+
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 app.use(express.json());
 
@@ -35,17 +37,7 @@ app.use(
   })
 );
 
-app.get("/hello", (req, res) => {
-  res.send("gg");
-});
-
-app.post("/songs", async (req, res) => {
-  const newSong = new Song({ title: "Cool song fr" });
-  const createdSong = await newSong.save();
-  res.json(createdSong);
-});
-
-// Used to get the user's token for future API calls.
+// Get's a user's token for future API calls
 app.get("/auth", async (req, res) => {
   const code = req.query.code as string;
 
@@ -90,21 +82,21 @@ export interface TrackDetails {
   image: string;
 }
 
-let sdk: SpotifyApi;
-
+//Returns a list containing a list of tracks from the old date and new date
 app.post("/get-track-list", async (req, res) => {
   let data = req.body;
   console.log(`In the post body ${JSON.stringify(data)}`);
   sdk = SpotifyApi.withAccessToken(
     process.env.SPOTIFY_CLIENT_ID,
     JSON.parse(data.token)
-  ); // SDK now authenticated as client-side user
+  );
   await storeTopTracks();
   const recentTracks = await TopTracks(new Date().toISOString());
   const oldTracks = await TopTracks(data.date);
   res.json({ recentTracks: recentTracks.songs, oldTracks: oldTracks.songs });
 });
 
+// Stores the tracklist in the database
 async function storeTopTracks() {
   const tracks = await sdk.currentUser.topItems("tracks");
   const date = new Date();
@@ -120,6 +112,8 @@ async function storeTopTracks() {
   const songs = new Song({ time: date, userId: userId, songs: trackList });
   await songs.save();
 }
+
+// Fetches the most recent tracklist befor ethe parameter date
 async function TopTracks(beforeDate?: string) {
   const userProfile = await sdk.currentUser.profile();
   const userId = userProfile.id;
@@ -142,15 +136,13 @@ async function TopTracks(beforeDate?: string) {
       return mostRecentEntry;
     } else {
       console.error("No entries found for the user before the specified date");
-      // You might want to handle this case differently in your application
-      // (e.g., return an empty list or a specific error response)
     }
   } catch (error) {
     console.error("Error fetching most recent entry:", error);
-    // Handle the error appropriately
   }
 }
 
+// Returns a list of dates where the user has a stored tracklist.
 app.post("/dates", async (req, res) => {
   try {
     const data: AccessToken = req.body;
@@ -158,7 +150,6 @@ app.post("/dates", async (req, res) => {
     sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data);
     const userProfile = await sdk.currentUser.profile();
     const userId = userProfile.id;
-    // Find all unique dates (as strings) for the given userId
     const dateStrings = await Song.distinct("time", { userId });
 
     res.json(dateStrings);

@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+//Callback page after authenticating with spotify.
+//Redirects users to the ViewTracks page after loading.
 const Callback: React.FC = () => {
   const navigate = useNavigate();
 
@@ -11,7 +13,7 @@ const Callback: React.FC = () => {
 
       if (code) {
         try {
-          console.log("before fetch");
+          //Fetches access code for authentication
           const response = await fetch(
             `http://localhost:5000/auth?code=${code}`
           );
@@ -24,6 +26,8 @@ const Callback: React.FC = () => {
           const data = await response.json();
           console.log("Token response:", data);
 
+          //Access token is stored so we can call spotify API from the server
+          //With our application's secret
           localStorage.setItem("spotifyAccessToken", JSON.stringify(data));
         } catch (error) {
           console.error("Error fetching token:", error);

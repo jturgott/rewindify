@@ -12,6 +12,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelected }) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    //Fetches a list of dates as strings where the user has a stored track list.
     const fetchDates = async () => {
       try {
         const response = await fetch("http://localhost:5000/dates", {
@@ -27,7 +28,6 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelected }) => {
         }
         const dateStrings = await response.json();
 
-        // Convert date strings to Date objects
         const parsedDates = dateStrings.map(
           (dateString: string) => new Date(dateString)
         );
