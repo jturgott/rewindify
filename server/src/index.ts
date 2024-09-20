@@ -18,7 +18,7 @@ Sentry.init({
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
 });
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const PORT = 5000;
 const app = express();
 
@@ -34,7 +34,12 @@ app.use(
   cors({
     origin: "http://localhost:3000", // Allow requests from this origin
     methods: ["GET", "POST"], // Allow these HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization", 'baggage', 'sentry-trace'], // Allow these headers
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "baggage",
+      "sentry-trace",
+    ], // Allow these headers
     credentials: true,
   })
 );
@@ -68,8 +73,8 @@ app.get("/auth", async (req, res) => {
 
       const data = await response.json();
       console.log("data:" + JSON.stringify(data));
-      res.cookie('token', data, {httpOnly: true});
-      res.status(201).json({data:null, message:"cookie set successfully."})
+      res.cookie("token", data, { httpOnly: true });
+      res.status(201).json({ data: null, message: "cookie set successfully." });
     } catch (error) {
       console.error("Error fetching token:", error);
     }
@@ -88,7 +93,7 @@ export interface TrackDetails {
 //Returns a list containing a list of tracks from the old date and new date
 app.post("/get-track-list", async (req, res) => {
   let data = req.body;
-  console.log(req.cookies); 
+  console.log(req.cookies);
   sdk = SpotifyApi.withAccessToken(
     process.env.SPOTIFY_CLIENT_ID,
     req.cookies.token // Access the token directly from req.cookies
