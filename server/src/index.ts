@@ -18,7 +18,7 @@ Sentry.init({
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
 });
-
+const cookieParser = require('cookie-parser');
 const PORT = 5000;
 const app = express();
 
@@ -28,12 +28,14 @@ let sdk: SpotifyApi;
 
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   cors({
     origin: "http://localhost:3000", // Allow requests from this origin
     methods: ["GET", "POST"], // Allow these HTTP methods
     allowedHeaders: ["Content-Type", "Authorization", 'baggage', 'sentry-trace'], // Allow these headers
+    credentials: true,
   })
 );
 
@@ -65,8 +67,9 @@ app.get("/auth", async (req, res) => {
       }
 
       const data = await response.json();
-      console.log(data);
-      res.json(data);
+      console.log("data:" + JSON.stringify(data));
+      res.cookie('token', data, {httpOnly: true});
+      res.status(201).json({data:null, message:"cookie set successfully."})
     } catch (error) {
       console.error("Error fetching token:", error);
     }
@@ -85,11 +88,12 @@ export interface TrackDetails {
 //Returns a list containing a list of tracks from the old date and new date
 app.post("/get-track-list", async (req, res) => {
   let data = req.body;
-  console.log(`In the post body ${JSON.stringify(data)}`);
+  console.log(req.cookies); 
   sdk = SpotifyApi.withAccessToken(
     process.env.SPOTIFY_CLIENT_ID,
-    JSON.parse(data.token)
+    req.cookies.token // Access the token directly from req.cookies
   );
+
   await storeTopTracks();
   const recentTracks = await TopTracks(new Date().toISOString());
   const oldTracks = await TopTracks(data.date);
@@ -145,7 +149,8 @@ async function TopTracks(beforeDate?: string) {
 // Returns a list of dates where the user has a stored tracklist.
 app.post("/dates", async (req, res) => {
   try {
-    const data: AccessToken = req.body;
+    console.log(req.cookies);
+    const data: AccessToken = req.cookies.token;
     console.log(`In the post body ${JSON.stringify(data)}`);
     sdk = SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID, data);
     const userProfile = await sdk.currentUser.profile();

@@ -15,7 +15,10 @@ const Callback: React.FC = () => {
         try {
           //Fetches access code for authentication
           const response = await fetch(
-            `http://localhost:5000/auth?code=${code}`
+            `http://localhost:5000/auth?code=${code}`,
+            {
+              credentials: 'include' // Crucial for receiving and storing the cookie
+            }
           );
           console.log("after fetch");
 
@@ -23,12 +26,9 @@ const Callback: React.FC = () => {
             throw new Error("Network response was not ok");
           }
 
-          const data = await response.json();
-          console.log("Token response:", data);
 
           //Access token is stored so we can call spotify API from the server
           //With our application's secret
-          localStorage.setItem("spotifyAccessToken", JSON.stringify(data));
         } catch (error) {
           console.error("Error fetching token:", error);
         }

@@ -15,6 +15,7 @@
     "@sentry/profiling-node": "^8.30.0",
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "@types/react-router-dom": "^5.3.3",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",

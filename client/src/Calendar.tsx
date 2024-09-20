@@ -21,6 +21,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelected }) => {
             "Content-Type": "application/json",
           },
           body: localStorage.getItem("spotifyAccessToken"),
+          credentials: 'include',
         });
 
         if (!response.ok) {

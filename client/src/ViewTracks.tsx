@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SongChartEntry from "./SongChartEntry";
 
-// Holds details about tracks from the new tracklist and how they compare to the 
+// Holds details about tracks from the new tracklist and how they compare to the
 // older tracklist
 interface TrackDetails {
   rankDifference: number;
@@ -24,7 +24,7 @@ const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        //Fetches a list of track details 
+        //Fetches a list of track details
         const response = fetch("http://localhost:5000/get-track-list", {
           method: "POST",
           headers: {
@@ -34,6 +34,7 @@ const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
             token: localStorage.getItem("spotifyAccessToken"),
             date: selectedDate ? selectedDate : new Date(),
           }),
+          credentials: "include",
         });
 
         const result = await response;
@@ -92,7 +93,7 @@ const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
           isNew={track.isNew}
           isFavorite={false}
           albumArtUrl={track.albumImageUrl}
-          rankDifference={track.rankDifference} 
+          rankDifference={track.rankDifference}
         />
       ))}
     </div>
