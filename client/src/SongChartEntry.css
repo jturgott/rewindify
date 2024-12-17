@@ -1,4 +1,5 @@
 .song-chart-entry {
+  text-align: left;
   display: flex;
   align-items: center;
   padding: 15px; /* Increased padding for larger size */

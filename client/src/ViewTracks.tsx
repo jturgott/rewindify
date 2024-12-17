@@ -31,7 +31,6 @@ const ViewTracks: React.FC<ViewTracksProps> = ({ selectedDate }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            token: localStorage.getItem("spotifyAccessToken"),
             date: selectedDate ? selectedDate : new Date(),
           }),
           credentials: "include",

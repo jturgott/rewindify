@@ -1,4 +1,5 @@
 import React from "react";
+import "./Homepage.css";
 
 const SPOTIFY_CLIENT_ID = "233aa45be06b44d4be8c02dd58cd2264";
 const REDIRECT_URI = "http://localhost:3000/callback/";
@@ -14,7 +15,9 @@ const SpotifyAuthButton: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="home">
+      <h1>Welcome to rewindify</h1>
+      <h2>Log in with spotify to see your past favorites</h2>
       <button onClick={handleLogin}>Sign in with Spotify</button>{" "}
     </div>
   );
